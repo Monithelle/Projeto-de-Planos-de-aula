@@ -41,14 +41,12 @@ def get_turmas():
     letras = ['A', 'B', 'C', 'D', 'E', 'F']
     turmas = []
     
-    prefix = grade if grade else ('1ª' if ensino == 'medio' else '6º')
-    # Se já tiver 'Série' ou 'Ano', extrair o número/ordem
-    prefix_clean = prefix.replace(' Série', 'ª').replace(' Ano', 'º')
+    prefix = grade if grade else ('1ª Série' if ensino == 'medio' else '6º Ano')
     
     for l in letras:
         turmas.append({
-            'value': f"{prefix_clean} {l}",
-            'label': f"{prefix_clean} {l}"
+            'value': f"{prefix} {l}",
+            'label': f"{prefix} {l}"
         })
         
     return jsonify(turmas)
