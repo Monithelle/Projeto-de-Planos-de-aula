@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Planos do Professor - {{ professor.name }} - Administração{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .admin-layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+    }
+    @media (max-width: 800px) {
+        .admin-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="prof-sidebar" style="background: #112822;">
+        <div class="prof-marca">
+            <div class="prof-logo" style="background: #c78a2a;">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Administração</strong>
+                <span>Gestão Escolar</span>
+            </div>
+        </div>
+
+        <nav class="prof-menu">
+            <a href="{{ url_for('admin.dashboard') }}" class="prof-menu-link">
+                <i data-lucide="layout-dashboard" class="prof-menu-icone"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ url_for('admin.professores') }}" class="prof-menu-link ativo">
+                <i data-lucide="users" class="prof-menu-icone"></i>
+                <span>Professores</span>
+            </a>
+            <a href="{{ url_for('admin.arquivos') }}" class="prof-menu-link">
+                <i data-lucide="file-spreadsheet" class="prof-menu-icone"></i>
+                <span>Arquivos (PDFs)</span>
+            </a>
+            <a href="{{ url_for('admin.cadastros') }}" class="prof-menu-link">
+                <i data-lucide="user-check" class="prof-menu-icone"></i>
+                <span>Cadastros de Professores</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="prof-usuario" style="background: rgba(255,255,255,0.05);">
+            <div class="prof-avatar" style="background: #c78a2a; color: white;">AD</div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span style="color: #c78a2a;">Administrador Geral</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="prof-conteudo" style="background: #f6f7f4;">
+        <header class="prof-cabecalho">
+            <div>
+                <p class="prof-sobrelinha"><a href="{{ url_for('admin.professores') }}" style="color: inherit; text-decoration: none;">← Voltar para Todos os Professores</a></p>
+                <h1 style="font-size: 30px; font-family: Georgia, serif;">Pasta: {{ professor.name }}</h1>
+                <p style="font-size: 12px; color: var(--texto-suave); margin-top: 4px;">
+                    {{ professor.email }} • Cadastrado em {{ professor.created_at.strftime('%d/%m/%Y') }} • Status: <strong>{{ 'Ativo' if professor.status == 'ativo' else 'Pendente' }}</strong>
+                </p>
+            </div>
+
+            <span class="contador">{{ total_encontrados }} planos</span>
+        </header>
+
+        <div class="prof-divisor"></div>
+
+        <!-- FILTROS SUPERIORES -->
+        <div style="background: white; border: 1px solid var(--borda); border-radius: 12px; padding: 20px; margin-top: 20px; box-shadow: var(--sombra);">
+            <form action="{{ url_for('admin.professor_planos', id=professor.id) }}" method="GET">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; align-items: flex-end;">
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px;">Tipo de Ensino</label>
+                        <select name="ensino" style="width: 100%; min-height: 38px; border: 1px solid var(--borda); border-radius: 6px; padding: 0 8px; font-size: 12px;">
+                            <option value="">Todos os Níveis</option>
+                            <option value="fundamental" {% if filtros.ensino == 'fundamental' %}selected{% endif %}>Ensino Fundamental</option>
+                            <option value="medio" {% if filtros.ensino == 'medio' %}selected{% endif %}>Ensino Médio</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px;">Ano / Série</label>
+                        <input type="text" name="grade" value="{{ filtros.grade }}" placeholder="Ex: 1ª Série, 8º Ano" style="width: 100%; min-height: 38px; border: 1px solid var(--borda); border-radius: 6px; padding: 0 8px; font-size: 12px;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px;">Turma</label>
+                        <input type="text" name="turma" value="{{ filtros.turma }}" placeholder="Ex: 1ª A, 8º B" style="width: 100%; min-height: 38px; border: 1px solid var(--borda); border-radius: 6px; padding: 0 8px; font-size: 12px;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px;">Data Início</label>
+                        <input type="date" name="data_inicio" value="{{ filtros.data_inicio }}" style="width: 100%; min-height: 38px; border: 1px solid var(--borda); border-radius: 6px; padding: 0 8px; font-size: 12px;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px;">Data Fim</label>
+                        <input type="date" name="data_fim" value="{{ filtros.data_fim }}" style="width: 100%; min-height: 38px; border: 1px solid var(--borda); border-radius: 6px; padding: 0 8px; font-size: 12px;">
+                    </div>
+
+                    <div style="display: flex; gap: 8px;">
+                        <button type="submit" class="btn-acao primario" style="height: 38px; flex: 1; justify-content: center;">
+                            <i data-lucide="filter"></i> Filtrar
+                        </button>
+                        <a href="{{ url_for('admin.professor_planos', id=professor.id) }}" class="btn-acao secundario" style="height: 38px; justify-content: center;">
+                            Limpar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- LISTAGEM ESTRUTURADA DOS PLANOS -->
+        <div style="margin-top: 25px;">
+            {% for bim in [1, 2, 3, 4] %}
+                <div style="margin-bottom: 30px; background: white; border: 1px solid var(--borda); border-radius: 14px; padding: 22px; box-shadow: var(--sombra);">
+                    <h2 style="font-size: 18px; color: var(--verde-escuro); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="folder-open"></i> {{ bim }}º Bimestre
+                    </h2>
+
+                    {% set tem_planos_no_bim = false %}
+
+                    <!-- Ensino Fundamental -->
+                    {% if estrutura[bim]['fundamental'] %}
+                        {% set tem_planos_no_bim = true %}
+                        <div style="margin-left: 15px; margin-bottom: 18px;">
+                            <h4 style="font-size: 14px; color: #52635d; margin-bottom: 10px;">Ensino Fundamental</h4>
+                            {% for materia, lista in estrutura[bim]['fundamental'].items() %}
+                                <div style="margin-left: 15px; margin-bottom: 14px;">
+                                    <strong style="color: var(--verde); font-size: 13px;">• {{ materia }}</strong>
+                                    <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+                                        {% for p in lista %}
+                                            <div style="background: #fbfcfb; border: 1px solid #eef2f0; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                                <div>
+                                                    <strong style="font-size: 14px;">{{ p.grade }} ({{ p.classes_formatted }})</strong>
+                                                    <p style="font-size: 12px; color: var(--texto-suave); margin-top: 2px;">
+                                                        {{ p.period_formatted }} • {{ p.number_of_lessons }} aulas • {{ p.selected_lesson_titles.split('\n')[0] if p.selected_lesson_titles else '' }}
+                                                    </p>
+                                                </div>
+                                                <div style="display: flex; gap: 8px;">
+                                                    <a href="{{ url_for('prof.visualizar_plano', id=p.id) }}" class="btn-acao secundario">Visualizar</a>
+                                                    <a href="{{ url_for('prof.exportar_pdf', id=p.id) }}" class="btn-acao primario">Baixar PDF</a>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Ensino Médio -->
+                    {% if estrutura[bim]['medio'] %}
+                        {% set tem_planos_no_bim = true %}
+                        <div style="margin-left: 15px; margin-bottom: 18px;">
+                            <h4 style="font-size: 14px; color: #52635d; margin-bottom: 10px;">Ensino Médio</h4>
+                            {% for materia, lista in estrutura[bim]['medio'].items() %}
+                                <div style="margin-left: 15px; margin-bottom: 14px;">
+                                    <strong style="color: var(--verde); font-size: 13px;">• {{ materia }}</strong>
+                                    <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+                                        {% for p in lista %}
+                                            <div style="background: #fbfcfb; border: 1px solid #eef2f0; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                                <div>
+                                                    <strong style="font-size: 14px;">{{ p.grade }} ({{ p.classes_formatted }})</strong>
+                                                    <p style="font-size: 12px; color: var(--texto-suave); margin-top: 2px;">
+                                                        {{ p.period_formatted }} • {{ p.number_of_lessons }} aulas • {{ p.selected_lesson_titles.split('\n')[0] if p.selected_lesson_titles else '' }}
+                                                    </p>
+                                                </div>
+                                                <div style="display: flex; gap: 8px;">
+                                                    <a href="{{ url_for('prof.visualizar_plano', id=p.id) }}" class="btn-acao secundario">Visualizar</a>
+                                                    <a href="{{ url_for('prof.exportar_pdf', id=p.id) }}" class="btn-acao primario">Baixar PDF</a>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if not tem_planos_no_bim %}
+                        <p style="font-size: 12px; color: var(--texto-suave); font-style: italic; margin-left: 15px;">Nenhum plano cadastrado neste bimestre.</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}
+

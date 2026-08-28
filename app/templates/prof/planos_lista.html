@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{{ bimestre }}º Bimestre - Planos de Aula{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="prof-layout">
+    <!-- MENU LATERAL FIXO -->
+    <aside class="prof-sidebar">
+        <div class="prof-marca">
+            <div class="prof-logo">
+                <i data-lucide="book-open"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Planos de Aula</strong>
+                <span>Currículo Priorizado</span>
+            </div>
+        </div>
+
+        <nav class="prof-menu">
+            <a href="{{ url_for('prof.perfil') }}" class="prof-menu-link">
+                <i data-lucide="user-round" class="prof-menu-icone"></i>
+                <span>Meu Perfil</span>
+            </a>
+
+            <a href="{{ url_for('prof.dashboard') }}" class="prof-menu-link ativo">
+                <i data-lucide="folder" class="prof-menu-icone"></i>
+                <span>Planos de Aula</span>
+            </a>
+
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="prof-usuario">
+            <div class="prof-avatar">
+                {{ user.name[:1] | upper }}
+            </div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span>{{ 'Ativo' if user.status == 'ativo' else 'Pendente' }}</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="prof-conteudo">
+        <header class="prof-cabecalho">
+            <div>
+                <p class="prof-sobrelinha">
+                    <a href="{{ url_for('prof.dashboard') }}" style="color: inherit; text-decoration: none;">← Todos os Bimestres</a>
+                </p>
+                <h1>{{ bimestre }}º Bimestre</h1>
+            </div>
+
+            <div class="prof-acoes">
+                <form action="{{ url_for('prof.planos_bimestre', bimestre=bimestre) }}" method="GET" class="prof-busca">
+                    <i data-lucide="search"></i>
+                    <input type="search" name="q" value="{{ busca or '' }}" placeholder="Buscar neste bimestre..." autocomplete="off">
+                </form>
+
+                {% if user.status == 'ativo' or user.role == 'admin' %}
+                    <a href="{{ url_for('prof.novo_plano') }}" class="prof-btn-novo">
+                        <i data-lucide="plus"></i>
+                        <span>Novo plano</span>
+                    </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="prof-divisor"></div>
+
+        {% if planos %}
+            <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px;">
+                {% for plano in planos %}
+                <div style="background: white; border: 1px solid var(--borda); border-radius: 12px; padding: 20px 24px; box-shadow: var(--sombra); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                            <span class="componente-tag" style="background: var(--verde-claro); color: var(--verde); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 11px;">
+                                {{ plano.subject.name }}
+                            </span>
+                            <span style="font-size: 12px; color: var(--texto-suave); font-weight: 600;">
+                                {{ 'Ensino Médio' if plano.education_level == 'medio' else 'Ensino Fundamental' }} • {{ plano.grade }}
+                            </span>
+                            <span style="font-size: 12px; background: #eef2f0; color: #334e44; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+                                Turmas: {{ plano.classes_formatted or 'Não informada' }}
+                            </span>
+                        </div>
+
+                        <h3 style="font-size: 16px; color: var(--texto); margin: 6px 0;">
+                            {{ plano.selected_lesson_titles.split('\n')[0] if plano.selected_lesson_titles else 'Plano de Aula' }}
+                        </h3>
+
+                        <p style="font-size: 12px; color: var(--texto-suave);">
+                            Período: <strong>{{ plano.period_formatted }}</strong> • {{ plano.number_of_lessons }} aulas • Criado em {{ plano.created_at.strftime('%d/%m/%Y') }}
+                        </p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <a href="{{ url_for('prof.visualizar_plano', id=plano.id) }}" class="btn-acao secundario" title="Visualizar Plano">
+                            <i data-lucide="eye"></i> Visualizar
+                        </a>
+
+                        <a href="{{ url_for('prof.exportar_pdf', id=plano.id) }}" class="btn-acao secundario" title="Baixar PDF Oficial">
+                            <i data-lucide="file-down"></i> PDF
+                        </a>
+
+                        {% if user.status == 'ativo' or user.role == 'admin' %}
+                            <a href="{{ url_for('prof.editar_plano', id=plano.id) }}" class="btn-acao primario" title="Editar">
+                                <i data-lucide="pencil"></i> Editar
+                            </a>
+
+                            <form action="{{ url_for('prof.excluir_plano', id=plano.id) }}" method="POST" onsubmit="return confirm('Deseja realmente excluir este plano de aula?');" style="display: inline;">
+                                <button type="submit" class="btn-acao perigo" title="Excluir">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="prof-vazio" style="margin-top: 30px;">
+                <p>Nenhum plano de aula encontrado para este bimestre.</p>
+                {% if user.status == 'ativo' or user.role == 'admin' %}
+                    <a href="{{ url_for('prof.novo_plano') }}" class="btn-acao primario" style="margin-top: 15px;">
+                        <i data-lucide="plus"></i> Criar primeiro plano do {{ bimestre }}º Bimestre
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
+

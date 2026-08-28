@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Professores - Administração{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .admin-layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+    }
+    @media (max-width: 800px) {
+        .admin-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="prof-sidebar" style="background: #112822;">
+        <div class="prof-marca">
+            <div class="prof-logo" style="background: #c78a2a;">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Administração</strong>
+                <span>Gestão Escolar</span>
+            </div>
+        </div>
+
+        <nav class="prof-menu">
+            <a href="{{ url_for('admin.dashboard') }}" class="prof-menu-link">
+                <i data-lucide="layout-dashboard" class="prof-menu-icone"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ url_for('admin.perfil') }}" class="prof-menu-link">
+                <i data-lucide="user-cog" class="prof-menu-icone"></i>
+                <span>Perfil</span>
+            </a>
+            <a href="{{ url_for('admin.professores') }}" class="prof-menu-link ativo">
+                <i data-lucide="users" class="prof-menu-icone"></i>
+                <span>Professores</span>
+            </a>
+            <a href="{{ url_for('admin.arquivos') }}" class="prof-menu-link">
+                <i data-lucide="file-spreadsheet" class="prof-menu-icone"></i>
+                <span>Arquivos (PDFs)</span>
+            </a>
+            <a href="{{ url_for('admin.cadastros') }}" class="prof-menu-link">
+                <i data-lucide="user-check" class="prof-menu-icone"></i>
+                <span>Cadastros de Professores</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="prof-usuario" style="background: rgba(255,255,255,0.05);">
+            <div class="prof-avatar" style="background: #c78a2a; color: white;">AD</div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span style="color: #c78a2a;">Administrador Geral</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="prof-conteudo" style="background: #f6f7f4;">
+        <header class="prof-cabecalho">
+            <div>
+                <p class="prof-sobrelinha">Corpo Docente</p>
+                <h1 style="font-size: 32px; font-family: Georgia, serif;">Professores Cadastrados</h1>
+            </div>
+
+            <div class="prof-acoes">
+                <form action="{{ url_for('admin.professores') }}" method="GET" class="prof-busca">
+                    <i data-lucide="search"></i>
+                    <input type="search" name="busca" value="{{ busca or '' }}" placeholder="Buscar professor..." autocomplete="off">
+                </form>
+            </div>
+        </header>
+
+        <div class="prof-divisor"></div>
+
+        <div style="margin-top: 24px; background: white; border: 1px solid var(--borda); border-radius: 14px; overflow: hidden; box-shadow: var(--sombra);">
+            <table class="tabela-dados" style="margin-top: 0;">
+                <thead>
+                    <tr>
+                        <th>Nome do Professor</th>
+                        <th>E-mail</th>
+                        <th>Telefone</th>
+                        <th>Status</th>
+                        <th>Planos Criados</th>
+                        <th>Data de Cadastro</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if professores %}
+                        {% for p in professores %}
+                        <tr>
+                            <td>
+                                <strong>{{ p.nome }}</strong>
+                            </td>
+                            <td>{{ p.email }}</td>
+                            <td>{{ p.telefone }}</td>
+                            <td>
+                                <span class="contador {{ 'alerta' if p.status == 'pendente' else '' }}">
+                                    {{ 'Ativo' if p.status == 'ativo' else 'Pendente' }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong>{{ p.total_planos }}</strong> {{ 'plano' if p.total_planos == 1 else 'planos' }}
+                            </td>
+                            <td>{{ p.criado_em }}</td>
+                            <td style="text-align: right;">
+                                <a href="{{ url_for('admin.professor_planos', id=p.id) }}" class="btn-acao primario">
+                                    <i data-lucide="folder-open"></i> Ver Planos
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px; color: var(--texto-suave);">
+                                Nenhum professor encontrado para os critérios de busca.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}
+

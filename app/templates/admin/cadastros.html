@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastros de Professores - Administração{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .admin-layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+    }
+    @media (max-width: 800px) {
+        .admin-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="prof-sidebar" style="background: #112822;">
+        <div class="prof-marca">
+            <div class="prof-logo" style="background: #c78a2a;">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Administração</strong>
+                <span>Gestão Escolar</span>
+            </div>
+        </div>
+
+        <nav class="prof-menu">
+            <a href="{{ url_for('admin.dashboard') }}" class="prof-menu-link">
+                <i data-lucide="layout-dashboard" class="prof-menu-icone"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ url_for('admin.perfil') }}" class="prof-menu-link">
+                <i data-lucide="user-cog" class="prof-menu-icone"></i>
+                <span>Perfil</span>
+            </a>
+            <a href="{{ url_for('admin.professores') }}" class="prof-menu-link">
+                <i data-lucide="users" class="prof-menu-icone"></i>
+                <span>Professores</span>
+            </a>
+            <a href="{{ url_for('admin.arquivos') }}" class="prof-menu-link">
+                <i data-lucide="file-spreadsheet" class="prof-menu-icone"></i>
+                <span>Arquivos (PDFs)</span>
+            </a>
+            <a href="{{ url_for('admin.cadastros') }}" class="prof-menu-link ativo">
+                <i data-lucide="user-check" class="prof-menu-icone"></i>
+                <span>Cadastros de Professores</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="prof-usuario" style="background: rgba(255,255,255,0.05);">
+            <div class="prof-avatar" style="background: #c78a2a; color: white;">AD</div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span style="color: #c78a2a;">Administrador Geral</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="prof-conteudo" style="background: #f6f7f4;">
+        <header class="prof-cabecalho">
+            <div>
+                <p class="prof-sobrelinha">Aprovação de Acessos</p>
+                <h1 style="font-size: 32px; font-family: Georgia, serif;">Cadastros de Professores</h1>
+            </div>
+
+            <span class="contador alerta" style="font-size: 13px; padding: 8px 16px;">
+                {{ pendentes | length }} pendentes de aprovação
+            </span>
+        </header>
+
+        <div class="prof-divisor"></div>
+
+        <p class="prof-introducao">
+            Professores recém-cadastrados podem fazer login, mas só conseguem criar e salvar planos de aula após a confirmação nesta tela.
+        </p>
+
+        <div style="margin-top: 24px; background: white; border: 1px solid var(--borda); border-radius: 14px; overflow: hidden; box-shadow: var(--sombra);">
+            <table class="tabela-dados" style="margin-top: 0;">
+                <thead>
+                    <tr>
+                        <th>Nome Completo</th>
+                        <th>E-mail</th>
+                        <th>Telefone</th>
+                        <th>Data da Solicitação</th>
+                        <th style="text-align: right;">Ações de Moderação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if pendentes %}
+                        {% for p in pendentes %}
+                        <tr>
+                            <td>
+                                <strong>{{ p.name }}</strong>
+                            </td>
+                            <td>{{ p.email }}</td>
+                            <td>{{ p.phone or 'Não informado' }}</td>
+                            <td>{{ p.created_at.strftime('%d/%m/%Y às %H:%M') if p.created_at else '' }}</td>
+                            <td style="text-align: right;">
+                                <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">
+                                    <form action="{{ url_for('admin.aprovar_cadastro', id=p.id) }}" method="POST">
+                                        <button type="submit" class="btn-acao primario" title="Aprovar Professor">
+                                            <i data-lucide="check"></i> Aprovar cadastro
+                                        </button>
+                                    </form>
+
+                                    <form action="{{ url_for('admin.recusar_cadastro', id=p.id) }}" method="POST" onsubmit="return confirm('Deseja realmente recusar e excluir o cadastro deste professor?');">
+                                        <button type="submit" class="btn-acao perigo" title="Recusar">
+                                            <i data-lucide="x"></i> Recusar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: var(--texto-suave);">
+                                <i data-lucide="shield-check" style="width: 36px; height: 36px; color: var(--verde); display: block; margin: 0 auto 10px;"></i>
+                                Não há solicitações de cadastro pendentes no momento. Todos os professores estão regularizados!
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}
+

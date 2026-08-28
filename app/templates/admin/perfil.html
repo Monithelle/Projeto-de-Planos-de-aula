@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil do Administrador - Planos de Aula{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .admin-layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+    }
+    @media (max-width: 800px) {
+        .admin-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="prof-sidebar" style="background: #112822;">
+        <div class="prof-marca">
+            <div class="prof-logo" style="background: #c78a2a;">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Administração</strong>
+                <span>Gestão Escolar</span>
+            </div>
+        </div>
+
+        <nav class="prof-menu">
+            <a href="{{ url_for('admin.dashboard') }}" class="prof-menu-link">
+                <i data-lucide="layout-dashboard" class="prof-menu-icone"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ url_for('admin.perfil') }}" class="prof-menu-link ativo">
+                <i data-lucide="user-cog" class="prof-menu-icone"></i>
+                <span>Perfil</span>
+            </a>
+            <a href="{{ url_for('admin.professores') }}" class="prof-menu-link">
+                <i data-lucide="users" class="prof-menu-icone"></i>
+                <span>Professores</span>
+            </a>
+            <a href="{{ url_for('admin.arquivos') }}" class="prof-menu-link">
+                <i data-lucide="file-spreadsheet" class="prof-menu-icone"></i>
+                <span>Arquivos (PDFs)</span>
+            </a>
+            <a href="{{ url_for('admin.cadastros') }}" class="prof-menu-link">
+                <i data-lucide="user-check" class="prof-menu-icone"></i>
+                <span>Cadastros de Professores</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="prof-usuario" style="background: rgba(255,255,255,0.05);">
+            <div class="prof-avatar" style="background: #c78a2a; color: white;">AD</div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span style="color: #c78a2a;">Administrador Geral</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="prof-conteudo" style="background: #f6f7f4;">
+        <header class="prof-cabecalho">
+            <div>
+                <p class="prof-sobrelinha">Configurações de Acesso</p>
+                <h1 style="font-size: 32px; font-family: Georgia, serif;">Perfil do Administrador</h1>
+            </div>
+        </header>
+
+        <div class="prof-divisor"></div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 24px;">
+            <div style="background: white; border: 1px solid var(--borda); border-radius: 14px; padding: 26px; box-shadow: var(--sombra);">
+                <h3 style="font-size: 16px; margin-bottom: 20px; color: var(--verde-escuro); display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="user-cog"></i> Dados Administrativos
+                </h3>
+
+                <form action="{{ url_for('admin.perfil') }}" method="POST">
+                    <input type="hidden" name="action" value="update_profile">
+
+                    <div style="margin-bottom: 18px;">
+                        <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px;">Nome do Administrador</label>
+                        <input type="text" name="nome" value="{{ user.name }}" required style="width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--borda); border-radius: 8px; font: inherit;">
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px;">E-mail do Administrador</label>
+                        <input type="email" name="email" value="{{ user.email }}" required style="width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--borda); border-radius: 8px; font: inherit;">
+                    </div>
+
+                    <button type="submit" class="btn-acao primario" style="width: 100%; min-height: 42px; justify-content: center; font-size: 13px;">
+                        <i data-lucide="save"></i> Salvar alterações
+                    </button>
+                </form>
+            </div>
+
+            <div style="background: white; border: 1px solid var(--borda); border-radius: 14px; padding: 26px; box-shadow: var(--sombra);">
+                <h3 style="font-size: 16px; margin-bottom: 20px; color: var(--verde-escuro); display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="key-round"></i> Alterar Senha de Administrador
+                </h3>
+
+                <form action="{{ url_for('admin.perfil') }}" method="POST">
+                    <input type="hidden" name="action" value="change_password">
+
+                    <div style="margin-bottom: 18px;">
+                        <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px;">Senha Atual</label>
+                        <input type="password" name="senha_atual" placeholder="••••••••" required style="width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--borda); border-radius: 8px; font: inherit;">
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px;">Nova Senha</label>
+                        <input type="password" name="nova_senha" placeholder="Mínimo 6 caracteres" required style="width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--borda); border-radius: 8px; font: inherit;">
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px;">Confirmação da Nova Senha</label>
+                        <input type="password" name="confirmacao" placeholder="Repita a nova senha" required style="width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--borda); border-radius: 8px; font: inherit;">
+                    </div>
+
+                    <button type="submit" class="btn-acao primario" style="width: 100%; min-height: 42px; justify-content: center; font-size: 13px;">
+                        <i data-lucide="shield-check"></i> Atualizar senha de acesso
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+

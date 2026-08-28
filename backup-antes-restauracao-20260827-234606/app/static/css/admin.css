@@ -1,0 +1,1203 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+:root {
+
+    --verde: #006b57;
+    --verde-escuro: #005445;
+    --verde-claro: #eef7f4;
+
+    --fundo: #f6f7f4;
+
+    --branco: #ffffff;
+
+    --texto: #1c2521;
+    --texto-suave: #61706a;
+
+    --borda: #d9e1dd;
+
+    --amarelo: #d8ad46;
+    --amarelo-claro: #fff7df;
+
+    --vermelho: #a64545;
+    --vermelho-claro: #fff1f1;
+
+    --sombra:
+        0 8px 28px rgba(19, 54, 43, 0.08);
+
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        var(--fundo);
+
+    color:
+        var(--texto);
+
+}
+
+
+
+/* PÁGINA */
+
+.admin-pagina {
+
+    width:
+        min(
+            1400px,
+            calc(100% - 40px)
+        );
+
+    margin:
+        0 auto;
+
+    padding:
+        26px 0 70px;
+
+}
+
+
+
+/* CABEÇALHO */
+
+.admin-topo {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap:
+        25px;
+
+    padding-bottom:
+        22px;
+
+    border-bottom:
+        1px solid var(--borda);
+
+}
+
+.admin-topo-direita,
+.usuario-admin {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+}
+
+.admin-logo {
+
+    width:
+        44px;
+
+    height:
+        44px;
+
+    border-radius:
+        12px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        var(--verde);
+
+    color:
+        white;
+
+    font-weight:
+        800;
+
+    font-size:
+        13px;
+
+}
+
+
+.admin-topo h1 {
+
+    font-size:
+        18px;
+
+    line-height:
+        1.1;
+
+}
+
+
+.admin-topo p {
+
+    margin-top:
+        4px;
+
+    font-size:
+        12px;
+
+    color:
+        var(--texto-suave);
+
+}
+
+
+.admin-topo-direita {
+
+    gap:
+        22px;
+
+}
+
+
+.status-sistema {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    padding:
+        8px 12px;
+
+    border:
+        1px solid var(--borda);
+
+    border-radius:
+        20px;
+
+    font-size:
+        12px;
+
+    color:
+        var(--texto-suave);
+
+    background:
+        var(--branco);
+
+}
+
+
+.status-bolinha {
+
+    width:
+        7px;
+
+    height:
+        7px;
+
+    border-radius:
+        50%;
+
+    background:
+        var(--verde);
+
+}
+
+
+.usuario-admin {
+
+    gap:
+        10px;
+
+}
+
+
+.usuario-avatar {
+
+    width:
+        38px;
+
+    height:
+        38px;
+
+    border-radius:
+        50%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        var(--verde-claro);
+
+    color:
+        var(--verde);
+
+    font-weight:
+        800;
+
+    font-size:
+        12px;
+
+}
+
+
+.usuario-admin strong {
+
+    display:
+        block;
+
+    font-size:
+        13px;
+
+}
+
+
+.usuario-admin span {
+
+    display:
+        block;
+
+    margin-top:
+        2px;
+
+    font-size:
+        11px;
+
+    color:
+        var(--texto-suave);
+
+}
+
+/* CARDS RESUMO */
+
+.cards-resumo {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0, 1fr)
+        );
+
+    gap:
+        16px;
+
+    margin-top:
+        26px;
+
+}
+
+
+.card-resumo {
+
+    min-height:
+        130px;
+
+    padding:
+        20px;
+
+    border:
+        1px solid var(--borda);
+
+    border-radius:
+        14px;
+
+    background:
+        var(--branco);
+
+    box-shadow:
+        var(--sombra);
+
+    color:
+        var(--texto);
+
+    text-decoration:
+        none;
+
+    transition:
+        .2s;
+
+}
+
+
+.card-resumo:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        var(--verde);
+
+}
+
+
+.card-titulo {
+
+    display:
+        block;
+
+    margin-bottom:
+        12px;
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .08em;
+
+}
+
+
+.card-resumo strong {
+
+    display:
+        block;
+
+    margin-bottom:
+        7px;
+
+    font-size:
+        29px;
+
+}
+
+
+.card-resumo small {
+
+    color:
+        var(--texto-suave);
+
+}
+
+
+.card-resumo.destaque strong {
+
+    color:
+        var(--amarelo);
+
+}
+
+
+
+/* =================================
+   PAINÉIS
+================================= */
+
+.admin-grid-principal {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(310px, .9fr);
+
+    gap:
+        20px;
+
+    margin-top:
+        20px;
+
+}
+
+
+.painel-admin {
+
+    background:
+        var(--branco);
+
+    border:
+        1px solid var(--borda);
+
+    border-radius:
+        14px;
+
+    box-shadow:
+        var(--sombra);
+
+    overflow:
+        hidden;
+
+}
+
+
+.painel-cabecalho {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    padding:
+        20px;
+
+    border-bottom:
+        1px solid var(--borda);
+
+}
+
+
+.painel-cabecalho h2 {
+
+    font-size:
+        15px;
+
+}
+
+
+.painel-cabecalho p {
+
+    margin-top:
+        5px;
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        12px;
+
+}
+
+
+.contador {
+
+    padding:
+        7px 10px;
+
+    border-radius:
+        20px;
+
+    background:
+        var(--verde-claro);
+
+    color:
+        var(--verde);
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+}
+
+
+.contador.alerta {
+
+    background:
+        var(--amarelo-claro);
+
+    color:
+        #886800;
+
+}
+
+
+
+/* =================================
+   PROFESSORES
+================================= */
+
+.professores-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap:
+        14px;
+
+    padding:
+        20px;
+
+}
+
+
+.professor-card {
+
+    padding:
+        16px;
+
+    border:
+        1px solid var(--borda);
+
+    border-radius:
+        11px;
+
+    background:
+        #fbfcfb;
+
+    transition:
+        .2s;
+
+}
+
+
+.professor-card:hover {
+
+    border-color:
+        var(--verde);
+
+    background:
+        var(--verde-claro);
+
+}
+
+
+.professor-card-topo {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        12px;
+
+}
+
+
+.componente-tag {
+
+    padding:
+        5px 8px;
+
+    border-radius:
+        15px;
+
+    background:
+        var(--verde-claro);
+
+    color:
+        var(--verde);
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+}
+
+
+.quantidade-planos {
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        11px;
+
+}
+
+
+.professor-card h3 {
+
+    margin-top:
+        16px;
+
+    font-size:
+        13px;
+
+}
+
+
+.professor-card p {
+
+    margin-top:
+        4px;
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        11px;
+
+}
+
+
+
+
+/* =================================
+   EXCEL
+================================= */
+
+.excel-painel {
+
+    padding-bottom:
+        20px;
+
+}
+
+
+.upload-area {
+
+    min-height:
+        180px;
+
+    margin:
+        20px;
+
+    border:
+        2px dashed
+        #aabdb5;
+
+    border-radius:
+        14px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        7px;
+
+    cursor:
+        pointer;
+
+    background:
+        #fbfcfb;
+
+    transition:
+        .2s;
+
+}
+
+
+.upload-area:hover {
+
+    border-color:
+        var(--verde);
+
+    background:
+        var(--verde-claro);
+
+}
+
+
+.upload-icone {
+
+    width:
+        44px;
+
+    height:
+        44px;
+
+    margin-bottom:
+        8px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        50%;
+
+    background:
+        var(--verde-claro);
+
+    color:
+        var(--verde);
+
+    font-size:
+        24px;
+
+    font-weight:
+        800;
+
+}
+
+
+.upload-area strong {
+
+    font-size:
+        13px;
+
+}
+
+
+.upload-area span {
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        11px;
+
+}
+
+
+.largura-total {
+
+    width:
+        calc(100% - 40px);
+
+    margin:
+        0 20px;
+
+}
+
+
+.ultima-importacao {
+
+    margin:
+        20px;
+
+    padding-top:
+        16px;
+
+    border-top:
+        1px solid var(--borda);
+
+}
+
+
+.titulo-menor {
+
+    display:
+        block;
+
+    margin-bottom:
+        10px;
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .08em;
+
+}
+
+
+.arquivo-status {
+
+    padding:
+        13px;
+
+    border-radius:
+        9px;
+
+    background:
+        var(--verde-claro);
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        11px;
+
+}
+
+
+
+/* =================================
+   BOTÕES
+================================= */
+
+.botao {
+
+    min-height:
+        38px;
+
+    padding:
+        0 15px;
+
+    border-radius:
+        8px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        none;
+
+    font-weight:
+        700;
+
+    font-size:
+        12px;
+
+    text-decoration:
+        none;
+
+    cursor:
+        pointer;
+
+    transition:
+        .2s;
+
+}
+
+
+.botao.primario {
+
+    background:
+        var(--verde);
+
+    color:
+        white;
+
+}
+
+
+.botao.primario:hover {
+
+    background:
+        var(--verde-escuro);
+
+}
+
+
+.botao.aceitar {
+
+    background:
+        var(--verde);
+
+    color:
+        white;
+
+}
+
+
+.botao.recusar {
+
+    border:
+        1px solid var(--borda);
+
+    background:
+        white;
+
+    color:
+        var(--texto-suave);
+
+}
+
+
+.botao.recusar:hover {
+
+    border-color:
+        var(--vermelho);
+
+    color:
+        var(--vermelho);
+
+}
+
+
+
+/* =================================
+   CADASTROS
+================================= */
+
+.cadastros-painel {
+
+    margin-top:
+        20px;
+
+}
+
+
+.cadastro-linha {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    padding:
+        17px 20px;
+
+    border-bottom:
+        1px solid var(--borda);
+
+}
+
+
+.cadastro-linha:last-child {
+
+    border-bottom:
+        none;
+
+}
+
+
+.cadastro-professor {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        13px;
+
+}
+
+
+.avatar-professor {
+
+    width:
+        36px;
+
+    height:
+        36px;
+
+    border-radius:
+        50%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    flex:
+        0 0 auto;
+
+    background:
+        var(--verde-claro);
+
+    color:
+        var(--verde);
+
+    font-size:
+        12px;
+
+    font-weight:
+        800;
+
+}
+
+
+.cadastro-professor strong {
+
+    display:
+        block;
+
+    font-size:
+        13px;
+
+}
+
+
+.cadastro-professor span {
+
+    display:
+        block;
+
+    margin-top:
+        4px;
+
+    color:
+        var(--texto-suave);
+
+    font-size:
+        11px;
+
+}
+
+
+.cadastro-acoes {
+
+    display:
+        flex;
+
+    gap:
+        8px;
+
+}
+
+
+
+/* =================================
+   RESPONSIVO
+================================= */
+
+@media
+(max-width: 950px) {
+
+    .cards-resumo {
+
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+
+    }
+
+
+    .admin-grid-principal {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+
+
+@media
+(max-width: 650px) {
+
+    .admin-pagina {
+
+        width:
+            calc(100% - 24px);
+
+    }
+
+
+    .admin-topo {
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .admin-topo-direita {
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-end;
+
+    }
+
+
+    .status-sistema {
+
+        display:
+            none;
+
+    }
+
+
+    .cards-resumo,
+    .professores-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .cadastro-linha {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+    }
+
+
+    .cadastro-acoes {
+
+        width:
+            100%;
+
+    }
+
+
+    .cadastro-acoes .botao {
+
+        flex:
+            1;
+
+    }
+
+}

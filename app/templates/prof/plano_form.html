@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar Plano de Aula' if plano else 'Novo Plano de Aula' }} - Planos de Aula{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gerador-plano.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="gerador-pagina">
+    <!-- TOPO -->
+    <header class="topo no-print">
+        <div class="topo-conteudo">
+            <a class="voltar" href="{{ url_for('prof.dashboard') }}">← Voltar ao Painel</a>
+            <h1>{{ 'Editar Plano de Aula' if plano else 'Novo Plano de Aula' }}</h1>
+            <p class="sobrelinha">Guia do Currículo Priorizado • Planejamento Pedagógico</p>
+        </div>
+    </header>
+
+    <div class="conteudo-gerador">
+        <!-- PAINEL DE SELEÇÃO DO ESCOPO -->
+        <section class="painel-filtros no-print">
+            <div class="filtros-grid">
+                <!-- TIPO DE ENSINO -->
+                <div class="campo-filtro">
+                    <label for="ensino">Tipo de Ensino</label>
+                    <select id="ensino" name="education_level_select">
+                        <option value="medio" {% if plano and plano.education_level == 'medio' %}selected{% endif %}>Ensino Médio</option>
+                        <option value="fundamental" {% if plano and plano.education_level == 'fundamental' %}selected{% endif %}>Ensino Fundamental</option>
+                    </select>
+                </div>
+
+                <!-- COMPONENTE CURRICULAR -->
+                <div class="campo-filtro">
+                    <label for="componente">Componente Curricular</label>
+                    <select id="componente"></select>
+                </div>
+
+                <!-- SÉRIE / ANO -->
+                <div class="campo-filtro">
+                    <label for="serie">Ano / Série</label>
+                    <select id="serie"></select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
+                <!-- BIMESTRE -->
+                <div class="campo-filtro">
+                    <label for="bimestre">Bimestre</label>
+                    <select id="bimestre">
+                        <option value="1" {% if plano and plano.bimester == 1 %}selected{% endif %}>1º Bimestre</option>
+                        <option value="2" {% if plano and plano.bimester == 2 %}selected{% endif %}>2º Bimestre</option>
+                        <option value="3" {% if plano and plano.bimester == 3 %}selected{% endif %}>3º Bimestre</option>
+                        <option value="4" {% if plano and plano.bimester == 4 %}selected{% endif %}>4º Bimestre</option>
+                    </select>
+                </div>
+
+                <div class="campo-filtro" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                    <span id="fonteDados" class="fonte-dados">Consultando base curricular...</span>
+                </div>
+            </div>
+
+            <!-- SELEÇÃO DE AULAS DO ESCOPO-SEQUÊNCIA -->
+            <div class="aulas-area">
+                <div class="aulas-titulo-linha">
+                    <label>Aulas do Escopo-Sequência</label>
+                    <span id="contadorSelecionadas">0 selecionadas</span>
+                </div>
+
+                <div id="listaAulas" class="lista-aulas"></div>
+            </div>
+
+            <p id="mensagem" class="mensagem" aria-live="polite"></p>
+        </section>
+
+        <!-- FORMULÁRIO COMPLETO DO PLANO -->
+        <form action="{{ url_for('prof.salvar_plano') }}" method="POST" id="formPlano">
+            <input type="hidden" name="plano_id" value="{{ plano.id if plano else '' }}">
+            <input type="hidden" id="subject_id" name="subject_id" value="{{ plano.subject_id if plano else '' }}">
+            <input type="hidden" id="subject_id_hidden" name="subject_id" value="{{ plano.subject_id if plano else '' }}">
+            <input type="hidden" id="grade" name="grade" value="{{ plano.grade if plano else '' }}">
+            <input type="hidden" id="grade_hidden" name="grade" value="{{ plano.grade if plano else '' }}">
+            <input type="hidden" id="bimestre_hidden" name="bimester" value="{{ plano.bimester if plano else '1' }}">
+            <input type="hidden" name="education_level" id="education_level_hidden" value="{{ plano.education_level if plano else 'medio' }}">
+            
+            <!-- Valores para pré-seleção em caso de edição -->
+            <input type="hidden" id="turmas_atuais" value="{{ plano.classes_formatted if plano else '' }}">
+            <input type="hidden" id="pre_selected_lesson_ids" value="{{ plano.to_dict()['selected_lesson_ids'] | join(',') if plano else '' }}">
+
+            <article class="folha-plano" id="folhaPlano">
+                <!-- DADOS GERAIS: PROFESSOR E PERÍODO -->
+                <section class="dados-gerais">
+                    <div class="campo-plano">
+                        <label for="professor">Professor(a)</label>
+                        <input id="professor" type="text" value="{{ user.name }}" readonly>
+                    </div>
+
+                    <div class="campo-plano">
+                        <label for="periodo">Período de Duração (Datas)</label>
+                        <input
+                            type="text"
+                            id="periodo"
+                            name="periodo_texto"
+                            placeholder="Selecione o intervalo no calendário"
+                            value="{{ plano.period_formatted if plano else '' }}"
+                            readonly
+                            required
+                        >
+                        <input type="hidden" id="data_inicio" name="data_inicio" value="{{ plano.start_date.strftime('%Y-%m-%d') if plano and plano.start_date else '' }}" required>
+                        <input type="hidden" id="data_fim" name="data_fim" value="{{ plano.end_date.strftime('%Y-%m-%d') if plano and plano.end_date else '' }}" required>
+                    </div>
+                </section>
+
+                <!-- COMPONENTE / BIMESTRE / Nº DE AULAS -->
+                <section class="linha-tres-campos">
+                    <div class="campo-plano">
+                        <label for="planoComponente">Componente Curricular</label>
+                        <input id="planoComponente" type="text" value="{{ plano.subject.name if plano else '' }}" readonly>
+                    </div>
+
+                    <div class="campo-plano">
+                        <label for="planoBimestre">Bimestre</label>
+                        <input id="planoBimestre" type="text" value="{{ plano.bimester ~ 'º Bimestre' if plano else '1º Bimestre' }}" readonly>
+                    </div>
+
+                    <div class="campo-plano">
+                        <label for="numeroAulas">Nº de Aulas Escolares</label>
+                        <input
+                            id="numeroAulas"
+                            name="numero_aulas"
+                            type="number"
+                            min="1"
+                            value="{{ plano.number_of_lessons if plano else '4' }}"
+                            required
+                        >
+                    </div>
+                </section>
+
+                <!-- TURMA(S) MULTISELEÇÃO -->
+                <section class="dados-gerais">
+                    <div class="campo-plano">
+                        <label id="labelTurmas">Turma(s) Atendida(s)</label>
+                        <div class="multi-turma" id="multiTurma">
+                            <button type="button" id="btnTurmas" class="multi-turma-botao">
+                                <span id="textoTurmas">{{ plano.classes_formatted if plano and plano.classes_formatted else 'Selecione as turmas' }}</span>
+                                <span class="multi-turma-seta">▼</span>
+                            </button>
+
+                            <div id="menuTurmas" class="multi-turma-menu"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TÍTULO DAS AULAS (AUTOMÁTICO) -->
+                <section class="bloco-plano">
+                    <label for="titulosAulas">1. Título das aulas (Preenchimento automático do Escopo)</label>
+                    <textarea id="titulosAulas" name="titulos_aulas" rows="3">{{ plano.selected_lesson_titles if plano else '' }}</textarea>
+                </section>
+
+                <!-- OBJETIVOS (AUTOMÁTICO) -->
+                <section class="bloco-plano">
+                    <label for="objetivos">2. Objetivos de Aprendizagem</label>
+                    <textarea id="objetivos" name="objetivos" rows="5">{{ plano.objectives if plano else '' }}</textarea>
+                </section>
+
+                <!-- CONTEÚDOS (AUTOMÁTICO) -->
+                <section class="bloco-plano">
+                    <label for="conteudos">3. Conteúdos</label>
+                    <textarea id="conteudos" name="conteudos" rows="5">{{ plano.contents if plano else '' }}</textarea>
+                </section>
+
+                <!-- HABILIDADES & AES -->
+                <section class="duas-colunas">
+                    <div class="bloco-plano sem-borda-topo">
+                        <label for="habilidades">4. Habilidades</label>
+                        <textarea id="habilidades" name="habilidades" rows="6">{{ plano.skills if plano else '' }}</textarea>
+                    </div>
+
+                    <div class="bloco-plano sem-borda-topo">
+                        <label for="aes">5. AEs do Guia do Currículo Priorizado</label>
+                        <textarea id="aes" name="aes" rows="6">{{ plano.essential_learnings if plano else '' }}</textarea>
+                    </div>
+                </section>
+
+                <!-- RECURSOS DIDÁTICOS (MANUAL) -->
+                <section class="bloco-plano">
+                    <label for="recursos">6. Recursos didáticos</label>
+                    <textarea id="recursos" name="recursos" rows="4" placeholder="Materiais de apoio, plataformas, projetor, materiais impressos...">{{ plano.resources if plano else 'Projetor multimídia, slides da SEDUC, caderno do aluno, textos impressos.' }}</textarea>
+                </section>
+
+                <!-- METODOLOGIA / DESENVOLVIMENTO (MANUAL) -->
+                <section class="bloco-plano">
+                    <label for="metodologia">7. Descrição das aulas / Metodologia</label>
+                    <textarea id="metodologia" name="metodologia" rows="6" placeholder="Descreva os passos e estratégias metodológicas das aulas...">{{ plano.methodology if plano else 'Aula expositiva dialogada, leitura mediada de textos e discussão temática em grupos.' }}</textarea>
+                </section>
+
+                <!-- AVALIAÇÃO (MANUAL) -->
+                <section class="bloco-plano">
+                    <label for="avaliacao">8. Instrumentos de avaliação</label>
+                    <textarea id="avaliacao" name="avaliacao" rows="4" placeholder="Critérios e instrumentos de avaliação formativa e somativa...">{{ plano.evaluation if plano else 'Participação nas atividades em sala, produção textual individual e resolução de exercícios.' }}</textarea>
+                </section>
+            </article>
+
+            <!-- AÇÕES DO FORMULÁRIO -->
+            <div class="acoes-planilha no-print" style="justify-content: flex-end; gap: 14px; margin-top: 25px;">
+                <a href="{{ url_for('prof.dashboard') }}" class="btn secundario" style="text-decoration: none; display: inline-flex; align-items: center;">Cancelar</a>
+                <button type="submit" class="btn primario" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <i data-lucide="save"></i> Salvar Plano de Aula
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+<script src="{{ url_for('static', filename='js/gerador-plano.js') }}"></script>
+{% endblock %}
+

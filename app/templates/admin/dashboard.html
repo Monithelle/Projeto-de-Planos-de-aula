@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Painel do Administrador - Planos de Aula{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .admin-layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+    }
+    @media (max-width: 800px) {
+        .admin-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <!-- MENU LATERAL FIXO DO ADMINISTRADOR -->
+    <aside class="prof-sidebar" style="background: #112822;">
+        <div class="prof-marca">
+            <div class="prof-logo" style="background: #c78a2a;">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Administração</strong>
+                <span>Gestão Escolar</span>
+            </div>
+        </div>
+
+        <nav class="prof-menu">
+            <a href="{{ url_for('admin.dashboard') }}" class="prof-menu-link ativo">
+                <i data-lucide="layout-dashboard" class="prof-menu-icone"></i>
+                <span>Início</span>
+            </a>
+
+            <a href="{{ url_for('admin.perfil') }}" class="prof-menu-link">
+                <i data-lucide="user-cog" class="prof-menu-icone"></i>
+                <span>Perfil</span>
+            </a>
+
+            <a href="{{ url_for('admin.professores') }}" class="prof-menu-link">
+                <i data-lucide="users" class="prof-menu-icone"></i>
+                <span>Professores</span>
+            </a>
+
+            <a href="{{ url_for('admin.arquivos') }}" class="prof-menu-link">
+                <i data-lucide="file-spreadsheet" class="prof-menu-icone"></i>
+                <span>Arquivos (PDFs)</span>
+            </a>
+
+            <a href="{{ url_for('admin.cadastros') }}" class="prof-menu-link" style="position: relative;">
+                <i data-lucide="user-check" class="prof-menu-icone"></i>
+                <span>Cadastros de Professores</span>
+                {% if resumo.pendentes > 0 %}
+                    <span style="background: #c78a2a; color: white; border-radius: 10px; padding: 2px 7px; font-size: 10px; font-weight: 800; margin-left: auto;">{{ resumo.pendentes }}</span>
+                {% endif %}
+            </a>
+
+            <a href="{{ url_for('prof.dashboard') }}" class="prof-menu-link" style="color: #6ed0b9; margin-top: 15px;">
+                <i data-lucide="book-open" class="prof-menu-icone"></i>
+                <span>Visão do Professor</span>
+            </a>
+
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="prof-usuario" style="background: rgba(255,255,255,0.05);">
+            <div class="prof-avatar" style="background: #c78a2a; color: white;">
+                AD
+            </div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span style="color: #c78a2a;">Administrador Geral</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTEÚDO ADMIN -->
+    <main class="prof-conteudo" style="background: #f6f7f4;">
+        <header class="admin-topo" style="border: none; padding-bottom: 0;">
+            <div>
+                <p class="prof-sobrelinha">{{ ano_atual }} • Sistema de Gestão de Planos de Aula</p>
+                <h1 style="font-size: 32px; font-family: Georgia, serif;">Painel de Controle</h1>
+            </div>
+
+            <div class="status-sistema">
+                <span class="status-bolinha"></span>
+                <span>Banco MySQL Conectado</span>
+            </div>
+        </header>
+
+        <!-- 3 INDICADORES PRINCIPAIS -->
+        <section class="cards-resumo" style="grid-template-columns: repeat(3, 1fr); margin-top: 24px;">
+            <a href="{{ url_for('admin.professores') }}" class="card-resumo">
+                <span class="card-titulo">Professores Cadastrados</span>
+                <strong>{{ resumo.professores }}</strong>
+                <small>Docentes registrados</small>
+            </a>
+
+            <a href="{{ url_for('admin.arquivos') }}" class="card-resumo">
+                <span class="card-titulo">Arquivos Importados (PDFs)</span>
+                <strong>{{ resumo.arquivos }}</strong>
+                <small>Guias de Currículo Priorizado</small>
+            </a>
+
+            <a href="{{ url_for('admin.cadastros') }}" class="card-resumo {{ 'destaque' if resumo.pendentes > 0 else '' }}">
+                <span class="card-titulo">Cadastros Pendentes</span>
+                <strong style="{{ 'color: #c78a2a;' if resumo.pendentes > 0 else '' }}">{{ resumo.pendentes }}</strong>
+                <small>Aguardando aprovação</small>
+            </a>
+        </section>
+
+        <!-- PASTAS DOS PROFESSORES -->
+        <section style="margin-top: 35px; background: white; border: 1px solid var(--borda); border-radius: 14px; padding: 24px; box-shadow: var(--sombra);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--borda); padding-bottom: 16px;">
+                <div>
+                    <h2 style="font-size: 18px; color: var(--verde-escuro);">Pastas dos Professores</h2>
+                    <p style="font-size: 12px; color: var(--texto-suave); margin-top: 4px;">Clique na pasta de um professor para consultar todos os seus planos organizados por bimestre</p>
+                </div>
+                <span class="contador">{{ professores | length }} docentes</span>
+            </div>
+
+            {% if professores %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                    {% for p in professores %}
+                    <a href="{{ url_for('admin.professor_planos', id=p.id) }}" style="text-decoration: none; color: inherit;">
+                        <div class="professor-card" style="height: 100%; display: flex; flex-direction: column;">
+                            <div class="professor-card-topo">
+                                <span class="componente-tag">
+                                    {{ p.materias | join(', ') if p.materias else 'Sem disciplina vinculada' }}
+                                </span>
+                                <span class="quantidade-planos">
+                                    {{ p.total_planos }} {{ 'plano' if p.total_planos == 1 else 'planos' }}
+                                </span>
+                            </div>
+
+                            <h3 style="font-size: 15px; margin: 12px 0 4px; color: var(--texto);">
+                                <i data-lucide="folder" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px; color: #006b57;"></i>
+                                {{ p.nome }}
+                            </h3>
+
+                            <p style="font-size: 11px; color: var(--texto-suave); margin-bottom: 12px;">{{ p.email }}</p>
+
+                            <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid #edf2ef; display: flex; justify-content: space-between; font-size: 11px;">
+                                <span style="color: {{ '#006b57' if p.status == 'ativo' else '#d8ad46' }}; font-weight: 700;">
+                                    ● {{ 'Ativo' if p.status == 'ativo' else 'Aguardando aprovação' }}
+                                </span>
+                                <span style="color: var(--verde); font-weight: 700;">Abrir planos →</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="prof-vazio">
+                    Nenhum professor cadastrado no sistema ainda.
+                </div>
+            {% endif %}
+        </section>
+    </main>
+</div>
+{% endblock %}
+

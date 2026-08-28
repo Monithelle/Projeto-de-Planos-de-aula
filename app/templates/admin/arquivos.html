@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Arquivos Curriculares - Administração{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .admin-layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+    }
+    @media (max-width: 800px) {
+        .admin-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="prof-sidebar" style="background: #112822;">
+        <div class="prof-marca">
+            <div class="prof-logo" style="background: #c78a2a;">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Administração</strong>
+                <span>Gestão Escolar</span>
+            </div>
+        </div>
+
+        <nav class="prof-menu">
+            <a href="{{ url_for('admin.dashboard') }}" class="prof-menu-link">
+                <i data-lucide="layout-dashboard" class="prof-menu-icone"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ url_for('admin.perfil') }}" class="prof-menu-link">
+                <i data-lucide="user-cog" class="prof-menu-icone"></i>
+                <span>Perfil</span>
+            </a>
+            <a href="{{ url_for('admin.professores') }}" class="prof-menu-link">
+                <i data-lucide="users" class="prof-menu-icone"></i>
+                <span>Professores</span>
+            </a>
+            <a href="{{ url_for('admin.arquivos') }}" class="prof-menu-link ativo">
+                <i data-lucide="file-spreadsheet" class="prof-menu-icone"></i>
+                <span>Arquivos (PDFs)</span>
+            </a>
+            <a href="{{ url_for('admin.cadastros') }}" class="prof-menu-link">
+                <i data-lucide="user-check" class="prof-menu-icone"></i>
+                <span>Cadastros de Professores</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <div class="prof-usuario" style="background: rgba(255,255,255,0.05);">
+            <div class="prof-avatar" style="background: #c78a2a; color: white;">AD</div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span style="color: #c78a2a;">Administrador Geral</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="prof-conteudo" style="background: #f6f7f4;">
+        <header class="prof-cabecalho">
+            <div>
+                <p class="prof-sobrelinha">Gestão de Guias Curriculares</p>
+                <h1 style="font-size: 32px; font-family: Georgia, serif;">Importação de PDFs</h1>
+            </div>
+        </header>
+
+        <div class="prof-divisor"></div>
+
+        <!-- ÁREA DE UPLOAD -->
+        <div style="margin-top: 24px; background: white; border: 1px solid var(--borda); border-radius: 14px; padding: 26px; box-shadow: var(--sombra);">
+            <h3 style="font-size: 16px; margin-bottom: 8px; color: var(--verde-escuro); display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="file-up"></i> Importar Novo PDF do Guia do Currículo Priorizado
+            </h3>
+            <p style="font-size: 12px; color: var(--texto-suave); margin-bottom: 20px;">
+                Selecione o arquivo PDF oficial de qualquer disciplina (Filosofia, Biologia, Matemática, História, etc.). O sistema fará a extração automática do Escopo-Sequência e exibirá uma prévia antes de gravar no banco de dados.
+            </p>
+
+            <form action="{{ url_for('admin.preview_pdf') }}" method="POST" enctype="multipart/form-data">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px;">Tipo de Ensino (Opcional)</label>
+                        <select name="education_level" style="width: 100%; min-height: 40px; border: 1px solid var(--borda); border-radius: 8px; padding: 0 10px; font: inherit;">
+                            <option value="">Auto-detectar pelo PDF</option>
+                            <option value="medio">Ensino Médio</option>
+                            <option value="fundamental">Ensino Fundamental</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px;">Ano / Série (Opcional)</label>
+                        <select name="grade" style="width: 100%; min-height: 40px; border: 1px solid var(--borda); border-radius: 8px; padding: 0 10px; font: inherit;">
+                            <option value="">Auto-detectar pelo PDF</option>
+                            <option value="1ª Série">1ª Série (EM)</option>
+                            <option value="2ª Série">2ª Série (EM)</option>
+                            <option value="3ª Série">3ª Série (EM)</option>
+                            <option value="6º Ano">6º Ano (EF)</option>
+                            <option value="7º Ano">7º Ano (EF)</option>
+                            <option value="8º Ano">8º Ano (EF)</option>
+                            <option value="9º Ano">9º Ano (EF)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px;">Ano Letivo</label>
+                        <input type="number" name="document_year" value="2026" style="width: 100%; min-height: 40px; border: 1px solid var(--borda); border-radius: 8px; padding: 0 10px; font: inherit;">
+                    </div>
+                </div>
+
+                <div style="border: 2px dashed #aabdb5; border-radius: 12px; padding: 30px; text-align: center; background: #fbfcfb; margin-bottom: 20px; cursor: pointer;" onclick="document.getElementById('pdfInput').click()">
+                    <i data-lucide="file-text" style="width: 42px; height: 42px; color: var(--verde); display: block; margin: 0 auto 10px;"></i>
+                    <strong style="font-size: 14px; display: block; margin-bottom: 4px;">Clique aqui para selecionar o arquivo PDF</strong>
+                    <span style="font-size: 12px; color: var(--texto-suave);" id="fileNameDisplay">Formato aceito: .pdf (Máx. 32MB)</span>
+                    <input type="file" id="pdfInput" name="pdf_file" accept=".pdf" required style="display: none;" onchange="document.getElementById('fileNameDisplay').textContent = this.files[0] ? this.files[0].name : 'Formato aceito: .pdf'">
+                </div>
+
+                <button type="submit" class="btn-acao primario" style="padding: 12px 24px; font-size: 13px;">
+                    <i data-lucide="scan-text"></i> Processar PDF e Ver Prévia
+                </button>
+            </form>
+        </div>
+
+        <!-- HISTÓRICO DE DOCUMENTOS IMPORTADOS -->
+        <div style="margin-top: 35px; background: white; border: 1px solid var(--borda); border-radius: 14px; padding: 24px; box-shadow: var(--sombra);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--borda); padding-bottom: 14px;">
+                <h3 style="font-size: 16px; color: var(--verde-escuro);">PDFs do Currículo Importados</h3>
+                <span class="contador">{{ documentos | length }} arquivos</span>
+            </div>
+
+            <table class="tabela-dados" style="margin-top: 0;">
+                <thead>
+                    <tr>
+                        <th>Componente Curricular</th>
+                        <th>Segmento</th>
+                        <th>Ano / Série</th>
+                        <th>Ano Letivo</th>
+                        <th>Aulas Cadastradas</th>
+                        <th>Arquivo PDF</th>
+                        <th>Data de Importação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if documentos %}
+                        {% for doc in documentos %}
+                        <tr>
+                            <td>
+                                <strong>{{ doc.subject.name }}</strong>
+                            </td>
+                            <td>{{ 'Ensino Médio' if doc.education_level == 'medio' else 'Ensino Fundamental' }}</td>
+                            <td>{{ doc.grade }}</td>
+                            <td>{{ doc.document_year }}</td>
+                            <td>
+                                <span style="background: var(--verde-claro); color: var(--verde); padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">
+                                    {{ doc.total_lessons }} aulas
+                                </span>
+                            </td>
+                            <td style="font-size: 11px; color: var(--texto-suave);">{{ doc.file_name }}</td>
+                            <td>{{ doc.imported_at.strftime('%d/%m/%Y às %H:%M') if doc.imported_at else '' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px; color: var(--texto-suave);">
+                                Nenhum PDF importado ainda.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}
+

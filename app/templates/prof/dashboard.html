@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Painel do Professor - Planos de Aula{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prof.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="prof-layout">
+    <!-- MENU LATERAL FIXO -->
+    <aside class="prof-sidebar">
+        <!-- MARCA / LOGO -->
+        <div class="prof-marca">
+            <div class="prof-logo">
+                <i data-lucide="book-open"></i>
+            </div>
+            <div class="prof-marca-texto">
+                <strong>Planos de Aula</strong>
+                <span>Currículo Priorizado</span>
+            </div>
+        </div>
+
+        <!-- NAVEGAÇÃO -->
+        <nav class="prof-menu">
+            <a href="{{ url_for('prof.perfil') }}" class="prof-menu-link">
+                <i data-lucide="user-round" class="prof-menu-icone"></i>
+                <span>Meu Perfil</span>
+            </a>
+
+            <a href="{{ url_for('prof.dashboard') }}" class="prof-menu-link ativo">
+                <i data-lucide="folder" class="prof-menu-icone"></i>
+                <span>Planos de Aula</span>
+            </a>
+
+            {% if user.role == 'admin' %}
+            <a href="{{ url_for('admin.dashboard') }}" class="prof-menu-link" style="background: rgba(216, 173, 70, 0.2); color: #ffd666;">
+                <i data-lucide="shield-check" class="prof-menu-icone"></i>
+                <span>Painel Admin</span>
+            </a>
+            {% endif %}
+
+            <a href="{{ url_for('auth.logout') }}" class="prof-menu-link">
+                <i data-lucide="log-out" class="prof-menu-icone"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+
+        <!-- IDENTIFICAÇÃO DO USUÁRIO -->
+        <div class="prof-usuario">
+            <div class="prof-avatar">
+                {{ user.name[:1] | upper }}
+            </div>
+            <div class="prof-usuario-info">
+                <strong>{{ user.name }}</strong>
+                <span>
+                    {% if user.status == 'pendente' %}
+                        <span style="color: #ffd666;">Pendente de aprovação</span>
+                    {% else %}
+                        Professor(a) Ativo
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="prof-conteudo">
+        <!-- BANNER DE APROVAÇÃO PENDENTE -->
+        {% if user.status == 'pendente' %}
+        <div class="banner-pendente">
+            <i data-lucide="clock-alert" style="width: 28px; height: 28px; flex-shrink: 0;"></i>
+            <div>
+                <strong>Cadastro aguardando confirmação do administrador</strong>
+                <p>Seu acesso foi registrado. Após a aprovação pela coordenação pedagógica, a criação e salvamento de novos planos de aula será automaticamente liberada.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- CABEÇALHO -->
+        <header class="prof-cabecalho">
+            <div>
+                <p class="prof-sobrelinha">{{ ano_atual }} • Guia do Currículo Priorizado</p>
+                <h1>Planos de Aula</h1>
+            </div>
+
+            <div class="prof-acoes">
+                <!-- CAMPO DE BUSCA -->
+                <form action="{{ url_for('prof.planos_bimestre', bimestre=1) }}" method="GET" class="prof-busca" id="formBuscaGeral">
+                    <i data-lucide="search"></i>
+                    <input type="search" name="q" id="buscarPlano" placeholder="Buscar planos..." autocomplete="off">
+                </form>
+
+                <!-- BOTÃO NOVO PLANO -->
+                {% if user.status == 'ativo' or user.role == 'admin' %}
+                    <a href="{{ url_for('prof.novo_plano') }}" class="prof-btn-novo">
+                        <i data-lucide="plus"></i>
+                        <span>Novo plano</span>
+                    </a>
+                {% else %}
+                    <button type="button" class="prof-btn-novo btn-desabilitado" title="Seu cadastro está aguardando aprovação do administrador">
+                        <i data-lucide="lock"></i>
+                        <span>Novo plano</span>
+                    </button>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="prof-divisor"></div>
+
+        <p class="prof-introducao">
+            Os documentos estão organizados por bimestre. Abra uma pasta para visualizar, editar, imprimir ou exportar os planos salvos.
+        </p>
+
+        <!-- CARDS DOS BIMESTRES -->
+        <section class="prof-bimestres" id="listaBimestres">
+            {% for b in bimestres %}
+            <article class="prof-card-bimestre">
+                <div class="prof-card-topo">
+                    <div class="prof-card-icone {{ b.cor }}">
+                        <i data-lucide="folder-open"></i>
+                    </div>
+                    <span class="prof-status {{ b.status_classe }}">{{ b.status }}</span>
+                </div>
+
+                <h2>{{ b.titulo }}</h2>
+                <p class="prof-card-tema">{{ b.periodo }}</p>
+
+                <div class="prof-card-rodape">
+                    <span>{{ b.planos }} {{ 'plano' if b.planos == 1 else 'planos' }}</span>
+
+                    <a href="{{ url_for('prof.planos_bimestre', bimestre=b.id) }}" class="prof-abrir-pasta" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        Abrir pasta
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+    </main>
+</div>
+{% endblock %}
+

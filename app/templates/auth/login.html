@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Acesse sua conta - Planos de Aula{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="pagina-login">
+    <!-- LADO ESQUERDO -->
+    <section class="lado-esquerdo">
+        <div class="logo">
+            <span class="icone-logo">🎓</span>
+            <strong>Planos de Aula</strong>
+        </div>
+
+        <div class="apresentacao">
+            <h1>Planejamento Pedagógico</h1>
+        </div>
+    </section>
+
+    <!-- LADO DIREITO -->
+    <section class="lado-direito">
+        <div class="card-login">
+            <h2>Acessar o sistema</h2>
+            <p class="subtitulo">Gerencie seus planos de aula e currículos integrados</p>
+
+            {% if request.args.get('cadastro') == 'enviado' %}
+                <p class="mensagem-sucesso">Cadastro recebido com sucesso! Aguarde a aprovação do administrador para liberar a criação de planos.</p>
+            {% endif %}
+
+            <!-- ABAS -->
+            <div class="abas">
+                <button id="btnEntrar" class="aba ativa" onclick="mostrarLogin()">Entrar</button>
+                <button id="btnCadastrar" class="aba" onclick="mostrarCadastro()">Cadastrar</button>
+            </div>
+
+            <!-- FORMULÁRIO DE LOGIN -->
+            <form id="formLogin" action="{{ url_for('auth.login') }}" method="POST">
+                <div class="campo">
+                    <label for="loginEmail">E-mail</label>
+                    <input type="email" id="loginEmail" name="email" placeholder="seu.email@escola.sp.gov.br" required>
+                </div>
+
+                <div class="campo">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="loginSenha">Senha</label>
+                        <a href="{{ url_for('auth.forgot_password') }}" style="font-size: 12px; color: #006b57; text-decoration: none;">Esqueci minha senha</a>
+                    </div>
+                    <input type="password" id="loginSenha" name="senha" placeholder="••••••••" required>
+                </div>
+
+                <button class="botao-principal" type="submit">Entrar</button>
+            </form>
+
+            <!-- FORMULÁRIO DE CADASTRO -->
+            <form id="formCadastro" action="{{ url_for('auth.cadastro') }}" method="POST" class="escondido">
+                <div class="campo">
+                    <label for="cadNome">Nome completo</label>
+                    <input type="text" id="cadNome" name="nome" placeholder="Nome do Professor(a)" required>
+                </div>
+
+                <div class="campo">
+                    <label for="cadEmail">E-mail institucional ou pessoal</label>
+                    <input type="email" id="cadEmail" name="email" placeholder="professor@escola.sp.gov.br" required>
+                </div>
+
+                <div class="campo">
+                    <label for="cadTelefone">Telefone / WhatsApp</label>
+                    <input type="tel" id="cadTelefone" name="telefone" placeholder="(11) 98765-4321">
+                </div>
+
+                <div class="campo">
+                    <label for="cadSenha">Senha</label>
+                    <input type="password" id="cadSenha" name="senha" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <div class="campo">
+                    <label for="cadConfirmacao">Confirmação de senha</label>
+                    <input type="password" id="cadConfirmacao" name="confirmacao" placeholder="Repita sua senha" required>
+                </div>
+
+                <button class="botao-principal" type="submit">Criar conta</button>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+<script>
+    // Se a URL tiver hash #cadastrar, abrir aba de cadastro automaticamente
+    if (window.location.hash === '#cadastrar') {
+        mostrarCadastro();
+    }
+</script>
+{% endblock %}
+
