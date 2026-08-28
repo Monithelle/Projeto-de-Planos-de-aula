@@ -1,5 +1,16 @@
 from datetime import datetime
+import re
 from . import db
+
+
+def format_class_name(class_name: str, education_level: str) -> str:
+    if not class_name:
+        return class_name
+    if education_level == 'medio' and re.match(r'^\d+[ªº] [A-F]$', class_name):
+        return class_name.replace('ª ', 'ª Série ').replace('º ', 'º Série ')
+    if education_level == 'fundamental' and re.match(r'^\d+[ªº] [A-F]$', class_name):
+        return class_name.replace('ª ', 'ª Ano ').replace('º ', 'º Ano ')
+    return class_name
 
 class LessonPlan(db.Model):
     __tablename__ = 'lesson_plans'
@@ -37,7 +48,10 @@ class LessonPlan(db.Model):
 
     @property
     def classes_formatted(self) -> str:
-        return ', '.join([c.class_name for c in self.classes])
+        return ', '.join(
+            format_class_name(class_item.class_name, self.education_level)
+            for class_item in self.classes
+        )
 
     @property
     def period_formatted(self) -> str:
@@ -55,7 +69,10 @@ class LessonPlan(db.Model):
             'education_level': self.education_level,
             'grade': self.grade,
             'bimester': self.bimester,
-            'turmas': [c.class_name for c in self.classes],
+            'turmas': [
+                format_class_name(class_item.class_name, self.education_level)
+                for class_item in self.classes
+            ],
             'turmas_texto': self.classes_formatted,
             'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else '',
             'end_date': self.end_date.strftime('%Y-%m-%d') if self.end_date else '',
