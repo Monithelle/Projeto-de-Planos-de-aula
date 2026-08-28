@@ -44,4 +44,5 @@ venv.bak/
 # Project specific
 logs/
 *.log
+backup-antes-restauracao-*/
 

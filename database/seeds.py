@@ -30,9 +30,12 @@ def seed_database():
         print("Disciplinas cadastradas com sucesso.")
 
         # 2. Criar Administrador Inicial
-        admin_email = app.config.get('ADMIN_EMAIL', 'admin@escola.sp.gov.br')
-        admin_pass = app.config.get('ADMIN_INITIAL_PASSWORD', 'Admin@123456')
+        admin_email = app.config.get('ADMIN_EMAIL')
+        admin_pass = app.config.get('ADMIN_INITIAL_PASSWORD')
         admin_name = app.config.get('ADMIN_NAME', 'Administrador do Sistema')
+
+        if not admin_email or not admin_pass:
+            raise RuntimeError('Defina ADMIN_EMAIL e ADMIN_INITIAL_PASSWORD no arquivo .env antes de executar o seed.')
 
         admin = User.query.filter_by(email=admin_email).first()
         if not admin:

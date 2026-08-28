@@ -20,7 +20,7 @@ class Config:
     ALLOWED_EXTENSIONS = {'pdf'}
     
     # Admin settings
-    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@escola.sp.gov.br')
-    ADMIN_INITIAL_PASSWORD = os.getenv('ADMIN_INITIAL_PASSWORD', 'Admin@123456')
+    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
+    ADMIN_INITIAL_PASSWORD = os.getenv('ADMIN_INITIAL_PASSWORD')
     ADMIN_NAME = os.getenv('ADMIN_NAME', 'Administrador')
 

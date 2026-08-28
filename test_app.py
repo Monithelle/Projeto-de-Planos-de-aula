@@ -21,7 +21,7 @@ class TestPlanoDeAula(unittest.TestCase):
         """Verifica se as tabelas e dados iniciais foram criados"""
         admin = User.query.filter_by(role='admin').first()
         self.assertIsNotNone(admin)
-        self.assertTrue(admin.check_password('Admin@123456'))
+        self.assertTrue(admin.check_password(self.app.config['ADMIN_INITIAL_PASSWORD']))
 
         prof = User.query.filter_by(email='professor@escola.sp.gov.br').first()
         self.assertIsNotNone(prof)
