@@ -117,9 +117,16 @@
                             </td>
                             <td>{{ p.criado_em }}</td>
                             <td style="text-align: right;">
-                                <a href="{{ url_for('admin.professor_planos', id=p.id) }}" class="btn-acao primario">
-                                    <i data-lucide="folder-open"></i> Ver Planos
-                                </a>
+                                <div style="display: inline-flex; gap: 8px; align-items: center;">
+                                    <a href="{{ url_for('admin.professor_planos', id=p.id) }}" class="btn-acao primario">
+                                        <i data-lucide="folder-open"></i> Ver Planos
+                                    </a>
+                                    <form action="{{ url_for('admin.excluir_professor', id=p.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este professor e todos os seus planos?');">
+                                        <button type="submit" class="btn-acao perigo" title="Excluir professor">
+                                            <i data-lucide="trash-2"></i> Excluir
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}

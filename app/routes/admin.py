@@ -129,6 +129,23 @@ def professores():
 
     return render_template('admin/professores.html', user=user, professores=professores_info, busca=busca)
 
+
+@admin_bp.route('/professores/<int:id>/excluir', methods=['POST'])
+@admin_required
+def excluir_professor(id):
+    professor = User.query.filter_by(id=id, role='professor').first_or_404()
+    nome = professor.name
+
+    try:
+        db.session.delete(professor)
+        db.session.commit()
+        flash(f'O professor(a) {nome} foi excluído com sucesso.', 'sucesso')
+    except Exception:
+        db.session.rollback()
+        flash('Não foi possível excluir este professor.', 'erro')
+
+    return redirect(url_for('admin.professores'))
+
 @admin_bp.route('/cadastros')
 @admin_required
 def cadastros():
