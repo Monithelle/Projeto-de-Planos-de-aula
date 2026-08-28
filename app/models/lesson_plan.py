@@ -6,10 +6,13 @@ from . import db
 def format_class_name(class_name: str, education_level: str) -> str:
     if not class_name:
         return class_name
-    if education_level == 'medio' and re.match(r'^\d+[ªº] [A-F]$', class_name):
-        return class_name.replace('ª ', 'ª Série ').replace('º ', 'º Série ')
-    if education_level == 'fundamental' and re.match(r'^\d+[ªº] [A-F]$', class_name):
-        return class_name.replace('ª ', 'ª Ano ').replace('º ', 'º Ano ')
+    match = re.match(r'^(\d+)[ªº]+(?:\s+(?:Série|Ano))?\s+([A-F])$', class_name)
+    if match:
+        number, letter = match.groups()
+        if education_level == 'medio':
+            return f'{number}ª Série {letter}'
+        if education_level == 'fundamental':
+            return f'{number}º Ano {letter}'
     return class_name
 
 class LessonPlan(db.Model):
